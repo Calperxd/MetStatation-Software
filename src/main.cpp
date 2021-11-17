@@ -10,6 +10,7 @@
 DHT dht(DHTPIN,DHTTYPE);
 DHTinfo dhtinfo;
 SensorRain sensorrain;
+Magnetometer magnetometer;
 
 
 
@@ -25,7 +26,6 @@ void setup()
 {
 	Serial.begin(9600);				//Baud Rate UART
 	dht.begin();					//Start dht
-	
 }
 
 void loop() 

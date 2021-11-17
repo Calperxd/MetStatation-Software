@@ -1,10 +1,10 @@
 #include <Wire.h>
 
 // Classe simples para tratar a bússola
-class Bussola 
+class Magnetometer 
 {
   public:
-    Bussola(void);
+    Magnetometer(void);
     bool inicia(void);
     void setDeclination (int graus , int mins, char dir);
     int leDirecao(void);

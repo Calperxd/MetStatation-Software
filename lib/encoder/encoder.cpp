@@ -1,6 +1,14 @@
+
+
+
+
+
+
+
 //Programa: Sensor de velocidade Arduino LM393
 //Autor: Arduino e Cia
 //Pino ligado ao pino D0 do sensor
+
 int pino_D0 = 2;
 int rpm;
 volatile byte pulsos;

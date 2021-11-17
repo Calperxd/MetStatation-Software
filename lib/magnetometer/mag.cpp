@@ -2,12 +2,12 @@
 #include "Arduino.h"
 
     // Construtor
-    Bussola::Bussola(void) 
+    Magnetometer::Magnetometer(void) 
     {
     }
 
     // Inicia comunicação com a bússola
-    bool Bussola::inicia() 
+    bool Magnetometer::inicia() 
     {
         // Confere o endereço
         Wire.beginTransmission(ender_QMC);
@@ -29,7 +29,7 @@
 
     // Define a declinação (correção entre o Norte magnético e o Norte geofráfico)
     // ver http://www.magnetic-declination.com/
-    void Bussola::setDeclination (int graus , int mins, char dir) 
+    void Magnetometer::setDeclination (int graus , int mins, char dir) 
     {
         declination = (graus + mins / 60.0) * PI / 180.0;
         if (dir == 'W') 
@@ -42,7 +42,7 @@
 
     // Le a direção da bússola em graus (0 a 360) em relação à marcação do eixo X
     // Assume que a bússola esta na horizontal
-    int Bussola::leDirecao(void) 
+    int Magnetometer::leDirecao(void) 
     {
         int16_t x, y, z;
         // Le a intesidade do campo magnético
@@ -89,7 +89,7 @@
         return round ((angulo * 180.0) / PI);
     }
 
-    void Bussola::pedeDados(int regStatus, int regDados) 
+    void Magnetometer::pedeDados(int regStatus, int regDados) 
     {
     // Espera ter um dado a ler
     do 
@@ -106,14 +106,14 @@
     }
 
     // Inicia processo de calibração
-    void Bussola::iniciaCal() 
+    void Magnetometer::iniciaCal() 
     {
         xMax = yMax = -32768;
         xMin = yMin = 32767;
     }
 
     // Encerra a calibração
-    void Bussola::encerraCal() 
+    void Magnetometer::encerraCal() 
     {
         Serial.print ("X: ");
         Serial.print (xMin);
