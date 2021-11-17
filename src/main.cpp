@@ -1,14 +1,16 @@
 #include <Arduino.h>
 #include "dht11.hpp"
+#include "rain.hpp"
+#include "mag.hpp"
+//#include "encoder.hpp"
 
 
 #define DHTPIN 14        				// Pino do DHT 11 em D5
 #define DHTTYPE DHT11					// Tipo do produto
 DHT dht(DHTPIN,DHTTYPE);
-
 DHTinfo dhtinfo;
-const int analogInPin = A0;
-int sensorValue = 0;
+SensorRain sensorrain;
+
 
 
 
@@ -19,22 +21,16 @@ DHTinfo dht_read()
 	return dhtinfo;
 }
 
-int rainSensor_read()
-{
-	sensorValue = analogRead(analogInPin);
-	return 0;
-}
-
 void setup() 
 {
 	Serial.begin(9600);				//Baud Rate UART
-	dht.begin();					//Start UART
+	dht.begin();					//Start dht
+	
 }
 
 void loop() 
 {
 	dhtinfo = dht_read();
-	Serial.print(dhtinfo.temperature);
-	Serial.print(dhtinfo.Humidity);
+	Serial.print(sensorrain.GetSensorReading());
 	delay(500);
 }

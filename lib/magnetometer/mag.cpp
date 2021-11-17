@@ -1,6 +1,5 @@
 #include "mag.hpp"
 #include "Arduino.h"
-#define PI 3.14
 
     // Construtor
     Bussola::Bussola(void) 
