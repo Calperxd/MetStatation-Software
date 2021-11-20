@@ -8,18 +8,22 @@
 class Wifi
 {
 private:
-    static const char* ssid;       // ssid
-    static const char* password;   // Password
-    static const char* GScriptId;  // Script ID
-    static const char* payload_base;
-    static const char* payload;
-    static const char* host;
-    static const int httpPort;
-    static const char* fingerprint;
-    static String url;
-    static const HTTPSRedirect* client;
+    String ssid;       // ssid
+    String password;   // Password
+    String GScriptId;  // Script ID
+    String payload_base;
+    String payload;
+    String host;
+    int httpPort;
+    String fingerprint;
+    String url;
+    HTTPSRedirect* client;
 public:
-    Wifi(/* args */);
+    Wifi();
+    Wifi(char* ssid, char* password, char* scriptid);
     ~Wifi();
     int start(char* ssid, char* password);
+    int createTLSConnection();
+
+
 };
