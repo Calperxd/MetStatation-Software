@@ -20,7 +20,7 @@ const char* password = "12345678";
 
 //Google docs
 const char* host = "script.google.com";
-const char *GScriptId = "AKfycbzYw5G-oxvnwHpAJfDsS0PWNrO0KTBMiCW78lHUcEO6ZnFHvSw";
+const char *GScriptId = "1HhgEB5pwnGW1fUyfl0V4RtDDwSWh7_kSB9yGF6mNaZw";
 const int httpsPort = 443;
 const char* fingerprint = "";
 // Write to Google Spreadsheet
@@ -53,7 +53,7 @@ DHTinfo dht_read()
 
 void setup() 
 {
-	//bool ret;
+	bool ret;
 	bool flag = false;
 	Serial.begin(9600);				//Baud Rate UART
 	dht.begin();					//Start dht
@@ -65,9 +65,11 @@ void setup()
 		delay(1000);
 		Serial.print(".");
 	}
+
+
 	// To free the heap 
 	free_heap_before = ESP.getFreeHeap();
-  	free_stack_before = ESP.getFreeContStack();
+	free_stack_before = ESP.getFreeContStack();
 	// Use HTTPSRedirect class to create a new TLS connection
 	client = new HTTPSRedirect(httpsPort);
 	client->setInsecure();
