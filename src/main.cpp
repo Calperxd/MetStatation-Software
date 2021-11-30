@@ -49,6 +49,14 @@ void Gyro_Read(void)
 	GyX = Wire.read() <<8 | Wire.read();
 	GyY = Wire.read() <<8 | Wire.read();
 	GyZ = Wire.read() <<8 | Wire.read();
+	Serial.print("AcX = "); Serial.print(AcX);
+	Serial.print("AcX = "); Serial.print(AcX);
+	Serial.print(" | AcZ = "); Serial.print(AcZ);
+	Serial.print(" | Tmp = "); Serial.print(Tmp/340.00+36.53);
+	Serial.print(" | GyX = "); Serial.print(GyX);
+	Serial.print(" | GyY = "); Serial.print(GyY);
+	Serial.print(" | GyZ = "); Serial.println(GyZ);
+
 }
 
 
@@ -113,6 +121,7 @@ void ICACHE_RAM_ATTR interrupcao()
 
 void setup() 
 {
+	Gyro();
 	attachInterrupt(digitalPinToInterrupt(PluviINTERRUPT), interrupcao, FALLING); //Interrupção
 	bool ret;
 	bool flag = false;
