@@ -11,6 +11,8 @@
 
 #define DHTPIN 14        				// Pino do DHT 11 em D5
 #define DHTTYPE DHT11					// Tipo do produto
+#define PluviINTERRUPT 13 				// D7 - Pino de interrupção da báscula
+#define pinoChuva 14 					// D5 Pino digital do sensor de chuva
 DHT dht(DHTPIN,DHTTYPE);
 DHTinfo dhtinfo;
 SensorRain sensorrain;
@@ -18,6 +20,8 @@ Magnetometer magnetometer;
 // Enter network credentials:
 const char* ssid     = "Dalzira";
 const char* password = "96261194";
+//Define pinos
+float pulsePluvi = 0;
 
 
 
@@ -36,12 +40,12 @@ void POST(void)
 	WiFiClientSecure client;
 	const char* host = "script.google.com";															// Google Host
 	const char* fingerprint = "46 B2 C3 44 9C 59 09 8B 01 B6 F8 BD 4C FB 00 74 91 2F EF F6";		// Sha1
-	String GAS_ID = "AKfycbwRHur_AFGoLR_USAhtTLwx1h6KdwsXXdJkdjPAfUmJV2NBLhvxiWHlT5Ts0ydN013-";     // ScriptID
+	String GAS_ID = "AKfycbwSfoM2Bc0RX7-2aNFsUpTvurlR0Y4hFj43IndotJ4IqmVnvfVpFc6R-t7I9xZ9j3cT";     // ScriptID
 	const int httpsPort = 443;
 	int param_1 = 1;			// temperature
 	int param_2 = 2;			// humidity
 	int param_3 = 3;														// Port
-	String parameters = "temp=" + String(dhtinfo.temperature) + "hum=" + String(dhtinfo.Humidity) + "&teste3=" + String(param_3);
+	String parameters = "teste1=" + String(dhtinfo.temperature) + "&teste2=" + String(dhtinfo.Humidity) + "&teste3=" + String(param_3);
 	client.setInsecure();
 	if (!client.connect(host, httpsPort)) 
 	{
@@ -72,8 +76,18 @@ void POST(void)
 	}
 }
 
+void ICACHE_RAM_ATTR interrupcao()
+{
+	if(pinoChuva == LOW)
+	{
+		pulsePluvi++;
+	}
+	delayMicroseconds(100);
+}
+
 void setup() 
 {
+	attachInterrupt(digitalPinToInterrupt(PluviINTERRUPT), interrupcao, FALLING); //Interrupção
 	bool ret;
 	bool flag = false;
 	Serial.begin(9600);				//Baud Rate UART
@@ -86,21 +100,19 @@ void setup()
 		Serial.print(".");
 	}
 }
-
 void loop() 
 {
+	bool itsRaining = false;
 	dhtinfo = dht_read();
 	if (isnan(dhtinfo.temperature) || isnan(dhtinfo.Humidity))
 	{
 		Serial.println("Erro Leitura");
 	}
-	else
+	
+	if (digitalRead(pinoChuva) == LOW)
 	{
-		POST();
-		Serial.println(dhtinfo.temperature);
-		Serial.println(dhtinfo.Humidity);
-	//Serial.print(sensorrain.GetSensorReading());
+		itsRaining = true; 
 	}
-
+	POST();
 	delay(500);
 }

@@ -83,7 +83,8 @@ void setup() {
 
   // Try to connect for a maximum of 5 times
   bool flag = false;
-  for (int i=0; i<5; i++){
+  for (int i=0; i<5; i++)
+  {
     int retval = client->connect(host, httpsPort);
     if (retval == 1) {
        flag = true;
@@ -92,11 +93,8 @@ void setup() {
     else
       Serial.println("Connection failed. Retrying...");
   }
-
-  if (!flag){
-    Serial.print("Could not connect to server: ");
-    Serial.println(host);
-    Serial.println("Exiting...");
+  if (!flag)
+  {
     return;
   }
 

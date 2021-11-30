@@ -151,7 +151,6 @@ void HTTPSRedirect::createPostRequest(const String& url, const char* host, const
                           "\r\n" +
                           payload + 
                           "\r\n\r\n";
-
   return;
 }
 
