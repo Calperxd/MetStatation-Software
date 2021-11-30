@@ -6,6 +6,7 @@
 #include <ESP8266HTTPClient.h>
 #include "WiFiClient.h"
 #include "ESP8266WiFi.h"
+#include "Wire.h"
 //#include "encoder.hpp"
 
 
@@ -22,8 +23,33 @@ const char* ssid     = "Dalzira";
 const char* password = "96261194";
 //Define pinos
 float pulsePluvi = 0;
+//MPU6050
+const int MPU = 0x68;
+int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
 
+
+void Gyro(void)
+{
+	Wire.begin();
+	Wire.write(0);
+	Wire.endTransmission(true);
+}
+
+void Gyro_Read(void)
+{
+	Wire.beginTransmission(MPU);
+	Wire.write(0x3B);
+	Wire.endTransmission(false);
+	Wire.requestFrom(MPU,14,true);
+	AcX = Wire.read() <<8 | Wire.read();     
+	AcY = Wire.read() <<8 | Wire.read();
+	AcZ = Wire.read() <<8 | Wire.read();
+	Tmp = Wire.read() <<8 | Wire.read();
+	GyX = Wire.read() <<8 | Wire.read();
+	GyY = Wire.read() <<8 | Wire.read();
+	GyZ = Wire.read() <<8 | Wire.read();
+}
 
 
 
@@ -113,6 +139,7 @@ void loop()
 	{
 		itsRaining = true; 
 	}
+	Gyro_Read();
 	POST();
 	delay(500);
 }

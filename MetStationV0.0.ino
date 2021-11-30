@@ -61,7 +61,8 @@ void loop() {
   anemInit=millis();
   while(millis()<(anemInit + 10000))
   {
-    if (digitalRead(pinoEncoder)==HIGH){
+    if (digitalRead(pinoEncoder)==HIGH)
+    {
       pulseAnem++;
   }
 
