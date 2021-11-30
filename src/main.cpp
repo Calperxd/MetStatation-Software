@@ -3,7 +3,9 @@
 #include "rain.hpp"
 #include "mag.hpp"
 #include "wifi.hpp"
-#include "HTTPSRedirect.h"
+#include <ESP8266HTTPClient.h>
+#include "WiFiClient.h"
+#include "ESP8266WiFi.h"
 //#include "encoder.hpp"
 
 
@@ -14,32 +16,10 @@ DHTinfo dhtinfo;
 SensorRain sensorrain;
 Magnetometer magnetometer;
 // Enter network credentials:
-const char* ssid     = "Omega-D87F";
-const char* password = "12345678";
+const char* ssid     = "Dalzira";
+const char* password = "96261194";
 
 
-//Google docs
-const char* host = "script.google.com";
-const char *GScriptId = "1HhgEB5pwnGW1fUyfl0V4RtDDwSWh7_kSB9yGF6mNaZw";
-const int httpsPort = 443;
-const char* fingerprint = "";
-// Write to Google Spreadsheet
-String url = String("/macros/s/") + GScriptId + "/exec?value=Hello";
-// Fetch Google Calendar events for 1 week ahead
-String url2 = String("/macros/s/") + GScriptId + "/exec?cal";
-// Read from Google Spreadsheet
-String url3 = String("/macros/s/") + GScriptId + "/exec?read";
-String payload_base =  "{\"command\": \"appendRow\", \
-                    \"sheet_name\": \"Sheet1\", \
-                    \"values\": ";
-String payload = "";
-HTTPSRedirect* client = nullptr;
-// used to store the values of free stack and heap
-// before the HTTPSRedirect object is instantiated
-// so that they can be written to Google sheets
-// upon instantiation
-unsigned int free_heap_before = 0;
-unsigned int free_stack_before = 0;
 
 
 
@@ -51,13 +31,53 @@ DHTinfo dht_read()
 	return dhtinfo;
 }
 
+void POST(void)
+{
+	WiFiClientSecure client;
+	const char* host = "script.google.com";															// Google Host
+	const char* fingerprint = "46 B2 C3 44 9C 59 09 8B 01 B6 F8 BD 4C FB 00 74 91 2F EF F6";		// Sha1
+	String GAS_ID = "AKfycbwRHur_AFGoLR_USAhtTLwx1h6KdwsXXdJkdjPAfUmJV2NBLhvxiWHlT5Ts0ydN013-";     // ScriptID
+	const int httpsPort = 443;
+	int param_1 = 1;			// temperature
+	int param_2 = 2;			// humidity
+	int param_3 = 3;														// Port
+	String parameters = "temp=" + String(dhtinfo.temperature) + "hum=" + String(dhtinfo.Humidity) + "&teste3=" + String(param_3);
+	client.setInsecure();
+	if (!client.connect(host, httpsPort)) 
+	{
+    	Serial.println("connection failed");
+    	return;
+	}
+	String url = "/macros/s/" + GAS_ID + "/exec?" + parameters;
+	client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+			"Host: " + host + "\r\n" +
+			"User-Agent: BuildFailureDetectorESP8266\r\n" +
+			"Connection: close\r\n\r\n");
+	while (client.connected()) 
+	{
+		String line = client.readStringUntil('\n');
+		if (line == "\r") 
+		{
+			Serial.println("headers received");
+			break;
+		}
+	}
+	String line = client.readStringUntil('\n');
+	if (line.startsWith("{\"state\":\"success\"")) 
+	{
+		Serial.println("CI successfull!");
+	} else 
+	{
+		Serial.println("CI has failed");
+	}
+}
+
 void setup() 
 {
 	bool ret;
 	bool flag = false;
 	Serial.begin(9600);				//Baud Rate UART
 	dht.begin();					//Start dht
-	
 	ret = WiFi.begin(ssid, password);
 	Serial.println("Connecting");
 	while (WiFi.status() != WL_CONNECTED) 
@@ -65,75 +85,22 @@ void setup()
 		delay(1000);
 		Serial.print(".");
 	}
-
-
-	// To free the heap 
-	free_heap_before = ESP.getFreeHeap();
-	free_stack_before = ESP.getFreeContStack();
-	// Use HTTPSRedirect class to create a new TLS connection
-	client = new HTTPSRedirect(httpsPort);
-	client->setInsecure();
-	client->setPrintResponseBody(true);
-	client->setContentTypeHeader("application/json");
-	// Try to connect for a maximum of 5 times
-	for (int i=0; i<5; i++)
-	{
-		int retval = client->connect(host, httpsPort);
-		if (retval == 1) 
-		{
-			flag = true;
-			break;
-		}
-		else
-			Serial.println("Connection failed. Retrying...");
-	}
-
-	if (!flag)
-	{
-		Serial.print("Could not connect to server: ");
-		Serial.println(host);
-		Serial.println("Exiting...");
-		return;
-	}
-  	// Send memory data to Google Sheets
-	payload = payload_base + "\"" + free_heap_before + "," + free_stack_before + "\"}";
-	client->POST(url2, host, payload, false);
-	payload = payload_base + "\"" + ESP.getFreeHeap() + "," + ESP.getFreeContStack() + "\"}";
-	client->POST(url2, host, payload, false);
-
-	// Note: setup() must finish within approx. 1s, or the the watchdog timer
-	// will reset the chip. Hence don't put too many requests in setup()
-	// ref: https://github.com/esp8266/Arduino/issues/34
-	// fetch spreadsheet data
-	client->GET(url, host);
-
-	// Send memory data to Google Sheets
-	payload = payload_base + "\"" + ESP.getFreeHeap() + "," + ESP.getFreeContStack() + "\"}";
-	client->POST(url2, host, payload, false);
-	// fetch spreadsheet data
-	client->GET(url2, host);
-	// Send memory data to Google Sheets
-	payload = payload_base + "\"" + ESP.getFreeHeap() + "," + ESP.getFreeContStack() + "\"}";
-	client->POST(url2, host, payload, false);
-	Serial.printf("Free heap: %u\n", ESP.getFreeHeap());
-	Serial.printf("Free stack: %u\n", ESP.getFreeContStack());
-	delete client;
-	client = nullptr;
-
 }
 
 void loop() 
 {
 	dhtinfo = dht_read();
-	if (isnan(dhtinfo.temperature) || isnan(dhtinfo.Humidity)){
-		Serial.println("ERRO");
+	if (isnan(dhtinfo.temperature) || isnan(dhtinfo.Humidity))
+	{
+		Serial.println("Erro Leitura");
 	}
-	else{
-		Serial.print("Temperatura: ");
+	else
+	{
+		POST();
 		Serial.println(dhtinfo.temperature);
-		Serial.print("Umidade: ");
 		Serial.println(dhtinfo.Humidity);
 	//Serial.print(sensorrain.GetSensorReading());
 	}
+
 	delay(500);
 }
