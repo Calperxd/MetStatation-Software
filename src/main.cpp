@@ -25,6 +25,8 @@ const char* password = "96261194";
 float pulsePluvi = 0;
 //MPU6050
 const int MPU = 0x68;
+
+
 int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
 
@@ -36,7 +38,7 @@ void Gyro(void)
 	Wire.write(0x6B);
 	Wire.write(0);
 	Wire.endTransmission(true);
-	delay(500);
+	delay(1000);
 }
 
 void Gyro_Read(void)
@@ -44,7 +46,7 @@ void Gyro_Read(void)
 	Wire.beginTransmission(MPU);
 	Wire.write(0x3B);
 	Wire.endTransmission(false);
-	Wire.requestFrom(MPU,14,true);
+	Wire.requestFrom(MPU, 14, true);
 	AcX = Wire.read() <<8 | Wire.read();     
 	AcY = Wire.read() <<8 | Wire.read();
 	AcZ = Wire.read() <<8 | Wire.read();
