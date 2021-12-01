@@ -32,8 +32,11 @@ int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 void Gyro(void)
 {
 	Wire.begin();
+	Wire.beginTransmission(MPU);
+	Wire.write(0x6B);
 	Wire.write(0);
 	Wire.endTransmission(true);
+	delay(500);
 }
 
 void Gyro_Read(void)
